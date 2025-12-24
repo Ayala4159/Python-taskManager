@@ -1,8 +1,7 @@
-import datetime
-
 from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+from django.core.validators import MinLengthValidator
 
 
 class Team(models.Model):
@@ -13,11 +12,11 @@ class Team(models.Model):
 
 
 class User(models.Model):
-    first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    email = models.EmailField()
-    password=models.CharField(max_length=100)
-    role = models.CharField(max_length=100, choices=[('Manager', 'Manager'), ('Team_Member', 'Team_Member')], null=True)
+    first_name = models.CharField(max_length=100)
+    email = models.EmailField(unique=True)
+    password = models.CharField(max_length=20, validators=[MinLengthValidator(8)])
+    role = models.CharField(max_length=20, choices=[('Manager', 'Manager'), ('Team_Member', 'Team_Member')], null=True)
     team = models.ForeignKey("Team", on_delete=models.CASCADE, null=True)
 
     def __str__(self):
