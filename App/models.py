@@ -1,8 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
-from django.core.validators import MinLengthValidator
-
+from django.contrib.auth.models import AbstractUser
 
 class Team(models.Model):
     team_name = models.CharField(max_length=100, unique=True)
@@ -11,11 +10,7 @@ class Team(models.Model):
         return self.team_name
 
 
-class User(models.Model):
-    last_name = models.CharField(max_length=100)
-    first_name = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
-    password = models.CharField(max_length=20, validators=[MinLengthValidator(8)])
+class User(AbstractUser):
     role = models.CharField(max_length=20, choices=[('Manager', 'Manager'), ('Team_Member', 'Team_Member')], null=True)
     team = models.ForeignKey("Team", on_delete=models.CASCADE, null=True)
 

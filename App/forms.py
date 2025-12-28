@@ -1,4 +1,6 @@
 from django import forms
+from django.contrib.auth.forms import AuthenticationForm
+
 from .models import User
 
 
@@ -29,3 +31,12 @@ class SignUpForm(forms.ModelForm):
         if not lastName.isalpha():
             raise forms.ValidationError("Should contains only letters")
         return lastName
+
+
+class SignInForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = [ 'email', 'password']
+        help_texts = {
+            "password": "min length of 8 characters",
+            "email": "email address"}
