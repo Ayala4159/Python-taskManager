@@ -1,0 +1,15 @@
+{% extends 'component/Nav.html' %}
+{% load static %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'bootstrap-5.3.8-dist\css\bootstrap.min.css' %}">
+{% endblock %}
+
+{% block content %}
+    <h1 class="text-center">הקמת קבוצה חדשה</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">צור קבוצה וסיים הרשמה</button>
+    </form>
+{% endblock %}
