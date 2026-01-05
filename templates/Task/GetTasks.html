@@ -1,10 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<h1>team_management</h1>
+<h2>רשימת המשימות שלי</h2>
 
-</body>
-</html>
+{% if user.role == "Manager" %}
+    <div style="background-color: #f9f9f9; padding: 10px; border: 1px solid #ccc;">
+        <h3>פעולות ניהול:</h3>
+        <a href="{% url 'add_task' %}" class="btn">הוספת משימה חדשה</a>
+        <a class="btn">שיוך משימות לעובדים</a>
+    </div>
+{% endif %}
+<table border="1" style="width:100%; border-collapse: collapse; text-align: right;">
+    <thead>
+        <tr>
+            <th>שם המשימה</th>
+            <th>סטטוס</th>
+            {% if user.role == "Manager" %}
+                <th>פעולות</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for task in tasks %}
+        <tr>
+            <td>{{ task.name }}</td>
+            <td>{{ task.get_status_display }}</td> {% if user.role == "Manager" %}
+                <td><button>delete</button></td>
+            {% endif %}
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3" style="text-align:center;">אין משימות להצגה לצוות זה</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

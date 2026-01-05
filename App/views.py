@@ -1,9 +1,11 @@
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect
-from .forms import SignUpForm, SignInForm, AddTeamForm, JoinTeamForm
+from .forms import SignUpForm, SignInForm, AddTeamForm, JoinTeamForm, AddTaskForm
 from django.contrib.auth import login, authenticate, get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.db import transaction
-from .models import Team
+from .models import Team, Task
 
 
 def wellcome(request):
@@ -30,7 +32,7 @@ def sign_in(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect("wellcome")
+            return redirect("get_tasks")
     else:
         form = AuthenticationForm()
     return render(request, 'User/SignIn.html', {'form': form})
@@ -62,7 +64,7 @@ def create_team(request):
                         )
                         del request.session['temp_user_data']
                         login(request, user)
-                        return redirect('wellcome')
+                        return redirect('get_tasks')
             except Exception as e:
                 form.add_error(None, str(e))
     else:
@@ -100,19 +102,32 @@ def select_team(request):
                     request.session.pop('temp_user_data', None)
                     login(request, user)
 
-                    return redirect('wellcome')
+                    return redirect('get_tasks')
 
             except Exception as e:
                 form.add_error(None, f"An error occurred during the registration process: {str(e)}")
     else:
         form = JoinTeamForm()
-
     return render(request, 'Team/SelectTeam.html', {'form': form})
 
 
-def add_task():
-    return None
+
+@login_required
+def add_task(request):
+    if request.user.role != 'Manager':
+        raise PermissionDenied
+    if request.method == 'POST':
+        form = AddTaskForm(request.POST)
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.team = request.user.team
+            task.save()
+            return redirect('get_tasks')
+    else:
+        form = AddTaskForm()
+    return render(request, 'Task/AddTask.html', {'form': form})
 
 
-def get_tasks():
-    return None
+def get_tasks(request):
+    tasks = Task.objects.filter(team=request.user.team)
+    return render(request, 'Task/GetTasks.html', {'tasks': tasks})

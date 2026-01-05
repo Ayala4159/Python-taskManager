@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 
-from .models import User, Team
+from .models import User, Team, Task
 
 
 class SignUpForm(forms.ModelForm):
@@ -77,3 +77,20 @@ class JoinTeamForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['team']
+
+class AddTaskForm(forms.ModelForm):
+    class Meta:
+        model = Task
+        fields = ['name', 'description', 'end_date']
+        labels = {
+            'name': 'Task name',
+            'description': 'Task description',
+        }
+        help_texts = {
+            'name': 'Enter a concise name for the task.',
+            'description': 'Provide a detailed explanation of what needs to be done.',
+            'end_date': 'Select the final deadline for this task.',
+        }
+        widgets = {
+            'end_date': forms.DateInput(attrs={'type': 'date'}),
+        }
