@@ -1,15 +1,17 @@
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import render, redirect
-from .forms import SignUpForm, SignInForm, AddTeamForm, JoinTeamForm, AddTaskForm
-from django.contrib.auth import login, authenticate, get_user_model
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.defaults import bad_request
+
+from .forms import SignUpForm, AddTeamForm, JoinTeamForm, AddTaskForm
+from django.contrib.auth import login, get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.db import transaction
-from .models import Team, Task
+from .models import Team, Task, User
 
 
-def wellcome(request):
-    return render(request, 'Wellcome.html')
+def welcome(request):
+    return render(request, 'Welcome.html')
 
 
 def sign_up(request):
@@ -127,7 +129,52 @@ def add_task(request):
         form = AddTaskForm()
     return render(request, 'Task/AddTask.html', {'form': form})
 
-
+@login_required()
 def get_tasks(request):
     tasks = Task.objects.filter(team=request.user.team)
-    return render(request, 'Task/GetTasks.html', {'tasks': tasks})
+    team= request.user.team
+    users= User.objects.filter(team=team)
+    context = {'tasks': tasks, 'team': team, 'users': users}
+    return render(request, 'Task/GetTasks.html', context)
+
+@login_required
+def delete_task(request, task_id):
+    if request.user.role != 'Manager':
+        raise PermissionDenied
+    if request.method == 'POST':
+        task = get_object_or_404(Task, id=task_id, team=request.user.team)
+        task.delete()
+        return redirect('get_tasks')
+    return bad_request()
+
+
+@login_required
+def edit_task(request, task_id):
+    task = get_object_or_404(Task, id=task_id, team=request.user.team)
+    if request.user.role != 'Manager':
+        raise PermissionDenied
+    if request.method == 'POST':
+        form = AddTaskForm(request.POST, instance=task)
+        if form.is_valid():
+            form.save()
+            return redirect('get_tasks')
+    else:
+        form = AddTaskForm(instance=task)
+    context = {
+        'form': form,
+        'task': task
+    }
+    return render(request,  'Task/AddTask.html', context)
+
+@login_required
+def update_owner(request, task_id):
+    if request.method == 'POST':
+        task = get_object_or_404(Task, id=task_id, team=request.user.team)
+        new_owner_id = request.POST.get('user_id')
+        if new_owner_id:
+            new_owner = get_object_or_404(User, id=new_owner_id)
+            task.owner = new_owner
+            task.status="ON_PROCESS"
+            task.save()
+        return redirect('get_tasks')
+    return redirect('get_tasks')
