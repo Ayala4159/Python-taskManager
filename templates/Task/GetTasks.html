@@ -4,12 +4,27 @@
 <h1>team_management</h1>
 <h2>רשימת המשימות שלי</h2>
 
-{% if user.role == "Manager" %}
+
 <div style="background-color: #f9f9f9; padding: 10px; border: 1px solid #ccc;">
-    <h3>פעולות ניהול:</h3>
+    <h4>חיפוש במשימות של הקבוצה</h4>
+    <h6>לפי סטטוס:</h6>
+
+    <p>
+<h6>לפי סטטוס:</h6>
+<p>
+    <a href="{% url 'get_tasks' %}" class="btn {% if not current_filter %}btn-dark{% else %}btn-outline-dark{% endif %} btn-sm">הכל</a>
+    <a href="?status=NEW_TASK" class="btn {% if current_filter == 'NEW' %}btn-primary{% else %}btn-outline-primary{% endif %} btn-sm">משימות לא משויכות</a>
+    <a href="?status=ON_PROCESS" class="btn {% if current_filter == 'ON_PROCESS' %}btn-primary{% else %}btn-outline-primary{% endif %} btn-sm">משימות בתהליך</a>
+    <a href="?status=DONE" class="btn {% if current_filter == 'DONE' %}btn-primary{% else %}btn-outline-primary{% endif %} btn-sm">משימות שבוצעו</a>
+    <a href="?status=EXPIRED" class="btn {% if current_filter == 'EXPIRED' %}btn-primary{% else %}btn-outline-primary{% endif %} btn-sm">משימות שלא נעשו</a>
+</p>
+    </p>
+    {% if user.role == "Manager" %}
+    <h4>פעולות ניהול:</h4>
     <a href="{% url 'add_task' %}" class="btn">הוספת משימה חדשה</a>
+    {% endif %}
 </div>
-{% endif %}
+
 
 <h4>{{ team.team_name }}</h4>
 <table border="1" style="width:100%; border-collapse: collapse; text-align: right;">
@@ -31,8 +46,16 @@
         <td>{{ task.name }}</td>
         <td>{{ task.description }}</td>
         <td>{{ task.end_date }}</td>
-        <td>{{ task.get_status_display }}</td>
-
+        <td>{{ task.get_status_display }}
+        {% if  user.id == task.owner.id and task.status != 'DONE' %}
+        <form action="{% url 'update_status' task.id %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="user_id" value="{{ user.id }}">
+                <button type="submit" class="btn btn-primary btn-sm">עדכן סטטוס
+                </button>
+            </form>
+        </td>
+        {% endif %}
         {% if user.role == "Manager" and not task.owner.email %}
         <td>
             <form action="{% url 'update_owner' task.id %}" method="POST" id="form-{{ task.id }}">

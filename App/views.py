@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import timezone
 from django.views.defaults import bad_request
 
 from .forms import SignUpForm, AddTeamForm, JoinTeamForm, AddTaskForm
@@ -122,6 +123,7 @@ def add_task(request):
         form = AddTaskForm(request.POST)
         if form.is_valid():
             task = form.save(commit=False)
+            task.status="NEW_TASK"
             task.team = request.user.team
             task.save()
             return redirect('get_tasks')
@@ -134,7 +136,15 @@ def get_tasks(request):
     tasks = Task.objects.filter(team=request.user.team)
     team= request.user.team
     users= User.objects.filter(team=team)
+    status_filter = request.GET.get('status')
+    if status_filter:
+        tasks = tasks.filter(status=status_filter)
     context = {'tasks': tasks, 'team': team, 'users': users}
+    now = timezone.now().date()
+    for task in tasks:
+        if task.end_date < now and task.status != 'EXPIRED':
+            task.status = 'EXPIRED'
+            task.save()
     return render(request, 'Task/GetTasks.html', context)
 
 @login_required
@@ -175,6 +185,17 @@ def update_owner(request, task_id):
             new_owner = get_object_or_404(User, id=new_owner_id)
             task.owner = new_owner
             task.status="ON_PROCESS"
+            task.save()
+        return redirect('get_tasks')
+    return redirect('get_tasks')
+
+@login_required
+def update_status(request, task_id):
+    if request.method == 'POST':
+        task = get_object_or_404(Task, id=task_id, team=request.user.team)
+        new_owner_id = request.POST.get('user_id')
+        if new_owner_id:
+            task.status="DONE"
             task.save()
         return redirect('get_tasks')
     return redirect('get_tasks')
