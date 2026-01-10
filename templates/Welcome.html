@@ -1,14 +1,52 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-</head>
-<body>
-    <a href="./SignIn">Sign in</a>
-    <a href="./SignUp">Sign up</a>
 
-</body>
-</html>
+{% block title %}ברוכים הבאים - DoIt{% endblock %}
+
+{% block content %}
+<section class="welcome-section text-center py-5">
+    <div class="hero container py-5">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4">
+                <h1 class="display-5 fw-bold">ברוכים הבאים ל-DoIt</h1>
+                <p class="lead">ניהול משימות פשוט, מהיר ומשתף צוות — להתחיל עכשיו קליל ונעים.</p>
+                <div class="mt-4">
+                    <a class="btn btn-primary btn-lg me-2" href="{% url 'sign_up' %}">פתח חשבון</a>
+                    <a class="btn btn-outline-secondary btn-lg" href="{% url 'sign_in' %}">כניסה</a>
+                </div>
+            </div>
+            <div class="col-lg-6 d-flex justify-content-center">
+                <div class="hero-card shadow-lg p-4">
+                    <img src="{% static 'My-App/images/DoIt.gif' %}" alt="לוגו" class="hero-logo mb-3">
+                    <p class="mb-0">התחל לנהל את המשימות שלך בדרך חכמה ומודרנית.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- דוגמת אנימציית מעבר / קובץ CSS אחראי על האנימציות -->
+<section class="features container py-4">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="feature-card p-3 text-center animate-fade-up">
+                <h5>מהירות</h5>
+                <p class="small">יצירת משימות וניהול בזמן אמת.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card p-3 text-center animate-zoom">
+                <h5>שיתוף</h5>
+                <p class="small">שתף צוותים והקצה בעלים בקליק.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card p-3 text-center animate-float">
+                <h5>מעקב</h5>
+                <p class="small">סטטוס משימות בזמן אמת עם ממשק ברור.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
