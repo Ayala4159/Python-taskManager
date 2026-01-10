@@ -1,35 +1,234 @@
 {% load static %}
-<nav class="navbar navbar-expand-lg fixed-top navbar-light bg-white shadow-sm">
-  <div class="container">
-    <a class="navbar-brand d-flex align-items-center" href="{% url 'welcome' %}">
-      <img src="{% static 'My-App/images/DoIt.gif' %}" alt="לוגו" height="48" class="me-2 logo-img">
-      <span class="brand-text">DoIt - מערכת משימות</span>
+<nav class="navbar navbar-expand-lg fixed-top navbar-light shadow-sm" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border-bottom: 2px solid rgba(37, 99, 235, 0.15);">
+  <div class="container-fluid">
+    <!-- Navbar Brand with Logo -->
+    <a class="navbar-brand d-flex align-items-center fw-bold" href="{% url 'welcome' %}" style="text-decoration: none;">
+      <img src="{% static 'My-App/images/DoIt.gif' %}?t={% now 'U' %}" alt="לוגו DoIt" height="55" class="me-2 logo-gif glow" style="max-width: 70px; animation: glow 2s ease-in-out infinite;">
     </a>
 
+    <!-- Mobile Toggle Button -->
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
-      aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+      aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation"
+      style="border-color: rgba(37, 99, 235, 0.5);">
       <span class="navbar-toggler-icon"></span>
     </button>
 
+    <!-- Navbar Items -->
     <div class="collapse navbar-collapse" id="mainNavbar">
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'sign_in' %}">התחבר</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link btn btn-primary text-white ms-2" href="{% url 'sign_up' %}">צור משתמש</a>
-        </li>
+        
+        {% if user.is_authenticated %}
+          <!-- For Authenticated Users -->
+
+          <!-- Team Badge -->
+          <li class="nav-item me-2">
+            <span class="nav-link d-flex align-items-center" style="background: linear-gradient(135deg, #2563eb 0%, #a855f7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 700; animation: fadeIn 0.6s ease-out;">
+              <i class="fas fa-users me-2" style="background: linear-gradient(135deg, #2563eb, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
+              {{ user.team.team_name }}
+            </span>
+          </li>
+
+          <!-- User Name -->
+          <li class="nav-item me-2">
+            <span class="nav-link d-flex align-items-center" style="color: #64748b; animation: fadeIn 0.7s ease-out;">
+              <i class="fas fa-user-circle me-2" style="color: #2563eb; font-size: 1.2rem;"></i>
+              {{ user.first_name }} {{ user.last_name }}
+            </span>
+          </li>
+
+          <!-- Add Task Button (Only for Managers) -->
+          {% if user.role == 'Manager' %}
+          <li class="nav-item me-2">
+            <a class="nav-link d-flex align-items-center" href="{% url 'add_task' %}" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border-radius: 0.5rem; padding: 0.5rem 1rem; transition: all 0.3s ease; animation: slideDown 0.6s ease-out;">
+              <i class="fas fa-plus me-1"></i>
+              <span>הוסף משימה</span>
+            </a>
+          </li>
+          {% endif %}
+
+          <!-- Logout Button -->
+          <li class="nav-item">
+            <a class="nav-link d-flex align-items-center" href="{% url 'logout' %}" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border-radius: 0.5rem; padding: 0.5rem 1rem; transition: all 0.3s ease; animation: slideDown 0.7s ease-out;">
+              <i class="fas fa-sign-out-alt me-1"></i>
+              <span>התנתק</span>
+            </a>
+          </li>
+
+        {% else %}
+          <!-- For Anonymous Users -->
+          
+          <!-- Sign In Link -->
+          <li class="nav-item me-2">
+            <a class="nav-link d-flex align-items-center" href="{% url 'sign_in' %}" style="color: #2563eb; font-weight: 600; transition: all 0.3s ease; animation: slideDown 0.6s ease-out;">
+              <i class="fas fa-sign-in-alt me-1"></i>
+              <span>התחבר</span>
+            </a>
+          </li>
+
+          <!-- Sign Up Button -->
+          <li class="nav-item">
+            <a class="nav-link btn text-white ms-2 d-flex align-items-center" href="{% url 'sign_up' %}" style="background: linear-gradient(135deg, #2563eb 0%, #a855f7 100%); border: none; border-radius: 0.5rem; padding: 0.5rem 1rem; transition: all 0.3s ease; animation: slideDown 0.7s ease-out;">
+              <i class="fas fa-user-plus me-1"></i>
+              <span>צור משתמש</span>
+            </a>
+          </li>
+        {% endif %}
+
       </ul>
     </div>
   </div>
 </nav>
 
-<!-- loader overlay (ניתן לכלול ב-base אם רוצים גלובלי) -->
-<div id="site-loader" class="site-loader">
-  <div class="loader-inner">
-    <div class="spinner-border text-light" role="status">
-      <span class="visually-hidden">טוען...</span>
-    </div>
-    <div class="loader-text">טוען, רגע קצר...</div>
+<!-- Filters Tabs (Top Bar under Nav) -->
+{% if user.is_authenticated and request.resolver_match.url_name == 'get_tasks' %}
+<div class="filters-top-bar" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border-bottom: 2px solid rgba(37, 99, 235, 0.15); padding: 0.75rem 1rem; position: sticky; top: 73px; z-index: 100; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
+  <div class="container-fluid">
+    <form method="get" id="filterForm" class="d-flex align-items-center gap-2 flex-wrap">
+      <!-- Search Input -->
+      <div class="filter-search" style="flex: 1; min-width: 200px;">
+        <input type="text" name="q" placeholder="🔍 חיפוש לפי שם עובד..." value="{{ request.GET.q }}" 
+          style="width: 100%; padding: 0.6rem 1rem; border: 2px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.9rem; transition: all 0.3s ease;"
+          onchange="this.form.submit();">
+      </div>
+
+      <!-- Status Tabs -->
+      <div class="status-tabs" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <a href="{% url 'get_tasks' %}" class="tab-btn {% if not request.GET.status %}active{% endif %}" 
+          style="padding: 0.6rem 1.2rem; border-radius: 2rem; border: none; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.3s ease; background: {% if not request.GET.status %}linear-gradient(135deg, #2563eb, #3b82f6){% else %}#e2e8f0{% endif %}; color: {% if not request.GET.status %}white{% else %}#64748b{% endif %};">
+          <i class="fas fa-list me-1"></i> הכל
+        </a>
+
+        <a href="{% url 'get_tasks' %}?status=NEW_TASK" class="tab-btn {% if request.GET.status == 'NEW_TASK' %}active{% endif %}" 
+          style="padding: 0.6rem 1.2rem; border-radius: 2rem; border: none; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.3s ease; background: {% if request.GET.status == 'NEW_TASK' %}linear-gradient(135deg, #3b82f6, #2563eb){% else %}#e2e8f0{% endif %}; color: {% if request.GET.status == 'NEW_TASK' %}white{% else %}#64748b{% endif %};">
+          <i class="fas fa-star me-1"></i> חדשה
+        </a>
+
+        <a href="{% url 'get_tasks' %}?status=ON_PROCESS" class="tab-btn {% if request.GET.status == 'ON_PROCESS' %}active{% endif %}" 
+          style="padding: 0.6rem 1.2rem; border-radius: 2rem; border: none; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.3s ease; background: {% if request.GET.status == 'ON_PROCESS' %}linear-gradient(135deg, #f59e0b, #d97706){% else %}#e2e8f0{% endif %}; color: {% if request.GET.status == 'ON_PROCESS' %}white{% else %}#64748b{% endif %};">
+          <i class="fas fa-hourglass-start me-1"></i> בתהליך
+        </a>
+
+        <a href="{% url 'get_tasks' %}?status=DONE" class="tab-btn {% if request.GET.status == 'DONE' %}active{% endif %}" 
+          style="padding: 0.6rem 1.2rem; border-radius: 2rem; border: none; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.3s ease; background: {% if request.GET.status == 'DONE' %}linear-gradient(135deg, #10b981, #059669){% else %}#e2e8f0{% endif %}; color: {% if request.GET.status == 'DONE' %}white{% else %}#64748b{% endif %};">
+          <i class="fas fa-check-circle me-1"></i> הושלמה
+        </a>
+
+        <a href="{% url 'get_tasks' %}?status=EXPIRED" class="tab-btn {% if request.GET.status == 'EXPIRED' %}active{% endif %}" 
+          style="padding: 0.6rem 1.2rem; border-radius: 2rem; border: none; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.3s ease; background: {% if request.GET.status == 'EXPIRED' %}linear-gradient(135deg, #ef4444, #dc2626){% else %}#e2e8f0{% endif %}; color: {% if request.GET.status == 'EXPIRED' %}white{% else %}#64748b{% endif %};">
+          <i class="fas fa-exclamation-circle me-1"></i> פג תוקף
+        </a>
+      </div>
+
+      <!-- Reset Button (only if filters active) -->
+      {% if request.GET.q or request.GET.status %}
+      <a href="{% url 'get_tasks' %}" class="reset-btn" 
+        style="padding: 0.6rem 1rem; border-radius: 0.5rem; border: 2px solid #cbd5e1; background: white; color: #64748b; text-decoration: none; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease;">
+        <i class="fas fa-redo me-1"></i> אפס
+      </a>
+      {% endif %}
+    </form>
   </div>
 </div>
+
+<style>
+  .filters-top-bar .tab-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+  }
+
+  .filters-top-bar .reset-btn:hover {
+    background: #e2e8f0;
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 768px) {
+    .filters-top-bar {
+      padding: 0.5rem;
+    }
+
+    .filters-top-bar .status-tabs {
+      width: 100%;
+      margin-top: 0.5rem;
+    }
+
+    .filters-top-bar .tab-btn {
+      padding: 0.5rem 0.8rem !important;
+      font-size: 0.8rem !important;
+    }
+  }
+</style>
+{% endif %}
+
+<!-- Loading Overlay -->
+<div id="site-loader" class="site-loader" style="display: none;">
+  <div class="spinner">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">טוען...</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes glow {
+    0%, 100% {
+      filter: drop-shadow(0 0 5px rgba(37, 99, 235, 0.5));
+    }
+    50% {
+      filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.7));
+    }
+  }
+
+  .nav-link {
+    transition: all 0.3s ease;
+  }
+
+  .nav-link:hover {
+    transform: translateY(-2px);
+  }
+
+  .navbar-brand:hover {
+    transform: scale(1.05);
+  }
+
+  .filter-group input:focus,
+  .filter-group select:focus {
+    outline: none;
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+  }
+
+  .offcanvas-body {
+    animation: slideLeft 0.3s ease-out;
+  }
+
+  @keyframes slideLeft {
+    from {
+      opacity: 0;
+      transform: translateX(50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+</style>

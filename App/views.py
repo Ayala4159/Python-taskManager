@@ -6,17 +6,21 @@ from django.utils import timezone
 from django.views.defaults import bad_request
 
 from .forms import SignUpForm, AddTeamForm, JoinTeamForm, AddTaskForm
-from django.contrib.auth import login, get_user_model
+from django.contrib.auth import login, logout, get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.db import transaction
 from .models import Team, Task, User
 
 
 def welcome(request):
+    if request.user.is_authenticated:
+        return redirect('get_tasks')
     return render(request, 'Welcome.html')
 
 
 def sign_up(request):
+    if request.user.is_authenticated:
+        return redirect('get_tasks')
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
@@ -31,6 +35,8 @@ def sign_up(request):
 
 
 def sign_in(request):
+    if request.user.is_authenticated:
+        return redirect('get_tasks')
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
@@ -78,13 +84,10 @@ def create_team(request):
 
 def select_team(request):
     User = get_user_model()
-    # 1. שליפת הנתונים מהסשן כבר בהתחלה
     user_data = request.session.get('temp_user_data')
-
-    # 2. הגנה: אם המשתמש הגיע לדף בלי לעבור ב-Sign Up
+    teams = Team.objects.all()
     if not user_data:
         return redirect('sign_up')
-
     if request.method == 'POST':
         form = JoinTeamForm(request.POST)
         if form.is_valid():
@@ -112,7 +115,8 @@ def select_team(request):
                 form.add_error(None, f"An error occurred during the registration process: {str(e)}")
     else:
         form = JoinTeamForm()
-    return render(request, 'Team/SelectTeam.html', {'form': form})
+    context = {'form': form, 'teams': teams}
+    return render(request, 'Team/SelectTeam.html', context)
 
 
 
@@ -140,7 +144,6 @@ def get_tasks(request):
     status_filter = request.GET.get('status')
     query = request.GET.get('q')
     if query:
-        # תקין - אנחנו מפעילים filter על המודל Task
         tasks = Task.objects.filter(
             Q(owner__first_name__icontains=query) |
             Q(owner__last_name__icontains=query)
@@ -169,8 +172,14 @@ def delete_task(request, task_id):
 @login_required
 def edit_task(request, task_id):
     task = get_object_or_404(Task, id=task_id, team=request.user.team)
+    
     if request.user.role != 'Manager':
-        raise PermissionDenied
+        raise PermissionDenied("רק מנהלים יכולים לערוך משימות")
+
+    if not task.status=="NEW_TASK":
+        raise PermissionDenied("לא ניתן לערוך משימה שהושלמה")
+
+
     if request.method == 'POST':
         form = AddTaskForm(request.POST, instance=task)
         if form.is_valid():
@@ -189,11 +198,19 @@ def update_owner(request, task_id):
     if request.method == 'POST':
         task = get_object_or_404(Task, id=task_id, team=request.user.team)
         new_owner_id = request.POST.get('user_id')
-        if new_owner_id:
-            new_owner = get_object_or_404(User, id=new_owner_id)
-            task.owner = new_owner
-            task.status="ON_PROCESS"
-            task.save()
+        
+        if request.user.role == 'Manager':
+            if not task.owner and new_owner_id:
+                new_owner = get_object_or_404(User, id=new_owner_id)
+                task.owner = new_owner
+                task.status = "ON_PROCESS"
+                task.save()
+        else:
+            if not task.owner and task.status != 'EXPIRED' and int(new_owner_id) == request.user.id:
+                task.owner = request.user
+                task.status = "ON_PROCESS"
+                task.save()
+        
         return redirect('get_tasks')
     return redirect('get_tasks')
 
@@ -201,9 +218,15 @@ def update_owner(request, task_id):
 def update_status(request, task_id):
     if request.method == 'POST':
         task = get_object_or_404(Task, id=task_id, team=request.user.team)
-        new_owner_id = request.POST.get('user_id')
-        if new_owner_id:
-            task.status="DONE"
+        
+        if task.owner and task.owner.id == request.user.id and task.status != 'DONE':
+            task.status = "DONE"
             task.save()
+        
         return redirect('get_tasks')
     return redirect('get_tasks')
+
+@login_required
+def logout_view(request):
+    logout(request)
+    return redirect('welcome')
