@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.views.defaults import bad_request
@@ -137,12 +138,19 @@ def get_tasks(request):
     team= request.user.team
     users= User.objects.filter(team=team)
     status_filter = request.GET.get('status')
+    query = request.GET.get('q')
+    if query:
+        # תקין - אנחנו מפעילים filter על המודל Task
+        tasks = Task.objects.filter(
+            Q(owner__first_name__icontains=query) |
+            Q(owner__last_name__icontains=query)
+        )
     if status_filter:
         tasks = tasks.filter(status=status_filter)
     context = {'tasks': tasks, 'team': team, 'users': users}
     now = timezone.now().date()
     for task in tasks:
-        if task.end_date < now and task.status != 'EXPIRED':
+        if task.end_date < now and task.status != 'EXPIRED' and task.status != 'DONE':
             task.status = 'EXPIRED'
             task.save()
     return render(request, 'Task/GetTasks.html', context)
