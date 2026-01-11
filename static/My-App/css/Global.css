@@ -1,0 +1,348 @@
+/* ==========================================
+   GLOBAL STYLES - עיצוב כללי
+   ========================================== */
+
+:root {
+    /* Color Palette - צבעים עיקריים (בצבעי הלוגו DoIt) */
+    --primary-dark: #1e3a5f;
+    --primary-main: #2563eb;
+    --primary-light: #3b82f6;
+    --accent-purple: #a855f7;
+    --accent-indigo: #4f46e5;
+    --accent-cyan: #06b6d4;
+    --accent-pink: #ec4899;
+    --accent-orange: #f97316;
+    --accent-green: #10b981;
+    
+    --bg-light: #f8fafc;
+    --bg-white: #ffffff;
+    --bg-dark: #0f172a;
+    --text-dark: #1e293b;
+    --text-muted: #64748b;
+    --text-light: #e0e7ff;
+    --border-light: #e2e8f0;
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.15);
+    --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.2);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--bg-light);
+    color: var(--text-dark);
+    line-height: 1.6;
+    overflow-x: hidden;
+    padding-top: 80px;
+}
+
+/* ==========================================
+   Typography
+   ========================================== */
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+}
+
+h1 { font-size: 3rem; }
+h2 { font-size: 2.25rem; }
+h3 { font-size: 1.875rem; }
+
+p {
+    color: var(--text-muted);
+    line-height: 1.7;
+}
+
+.lead {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+/* ==========================================
+   Buttons
+   ========================================== */
+
+.btn {
+    border-radius: 0.5rem;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    text-transform: capitalize;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-main), var(--primary-light));
+    border-color: var(--primary-main);
+    color: white;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5);
+    background: linear-gradient(135deg, var(--primary-light), var(--primary-main));
+}
+
+.btn-outline-secondary {
+    border-color: var(--text-muted);
+    color: var(--text-dark);
+    background-color: transparent;
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--text-dark);
+    border-color: var(--text-dark);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.btn-lg {
+    padding: 0.875rem 2rem;
+    font-size: 1.125rem;
+}
+
+/* ==========================================
+   Cards
+   ========================================== */
+
+.card {
+    border: none;
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+    background-color: var(--bg-white);
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* ==========================================
+   Utilities
+   ========================================== */
+
+.text-primary {
+    color: var(--primary-main) !important;
+}
+
+.bg-primary {
+    background-color: var(--primary-main) !important;
+}
+
+.text-gradient {
+    background: linear-gradient(135deg, #2563eb 0%, #a855f7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.rounded-lg {
+    border-radius: 0.75rem;
+}
+
+.rounded-xl {
+    border-radius: 1rem;
+}
+
+.rounded-2xl {
+    border-radius: 1.5rem;
+}
+
+/* ==========================================
+   Animations - אנימציות
+   ========================================== */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideRight {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideLeft {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+@keyframes glow {
+    0%, 100% {
+        filter: drop-shadow(0 0 5px rgba(168, 85, 247, 0.3));
+    }
+    50% {
+        filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.8));
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.8s ease-out;
+}
+
+.animate-slide-down {
+    animation: slideDown 0.8s ease-out;
+}
+
+.animate-slide-up {
+    animation: slideUp 0.8s ease-out;
+}
+
+.animate-slide-right {
+    animation: slideRight 0.8s ease-out;
+}
+
+.animate-slide-left {
+    animation: slideLeft 0.8s ease-out;
+}
+
+.animate-bounce {
+    animation: bounce 1s ease-in-out infinite;
+}
+
+.animate-pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.animate-glow {
+    animation: glow 2s ease-in-out infinite;
+}
+
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* ==========================================
+   Loading Spinner
+   ========================================== */
+
+.spinner-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+    border-width: 0.3rem;
+}
+
+/* ==========================================
+   Responsive
+   ========================================== */
+
+@media (max-width: 768px) {
+    body {
+        padding-top: 70px;
+    }
+
+    h1 { font-size: 1.875rem; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.25rem; }
+
+    .btn-lg {
+        padding: 0.625rem 1.25rem;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.25rem; }
+    
+    .lead {
+        font-size: 1rem;
+    }
+}
