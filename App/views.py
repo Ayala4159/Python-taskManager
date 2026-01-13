@@ -176,7 +176,7 @@ def edit_task(request, task_id):
     if request.user.role != 'Manager':
         raise PermissionDenied("רק מנהלים יכולים לערוך משימות")
 
-    if not task.status=="NEW":
+    if not task.status == "NEW_TASK":
         raise PermissionDenied("לא ניתן לערוך משימה שהושלמה")
 
 
