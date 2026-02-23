@@ -138,24 +138,27 @@ def add_task(request):
 
 @login_required()
 def get_tasks(request):
-    tasks = Task.objects.filter(team=request.user.team)
-    team= request.user.team
-    users= User.objects.filter(team=team)
+    team = request.user.team
+    # התחלת סינון ראשוני לפי הצוות בלבד
+    tasks = Task.objects.filter(team=team)
+    
+    users = User.objects.filter(team=team)
     status_filter = request.GET.get('status')
     query = request.GET.get('q')
+
     if query:
-        tasks = Task.objects.filter(
+        tasks = tasks.filter(
             Q(owner__first_name__icontains=query) |
             Q(owner__last_name__icontains=query)
         )
     if status_filter:
         tasks = tasks.filter(status=status_filter)
-    context = {'tasks': tasks, 'team': team, 'users': users}
     now = timezone.now().date()
     for task in tasks:
-        if task.end_date < now and task.status != 'EXPIRED' and task.status != 'DONE':
+        if task.end_date < now and task.status not in ['EXPIRED', 'DONE']:
             task.status = 'EXPIRED'
             task.save()
+    context = {'tasks': tasks, 'team': team, 'users': users}
     return render(request, 'Task/GetTasks.html', context)
 
 @login_required
